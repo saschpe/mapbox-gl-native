@@ -318,7 +318,6 @@ mbgl::Duration MGLDurationInSeconds(NSTimeInterval duration)
     // start paused if in IB
     if (_isTargetingInterfaceBuilder || background) {
         self.dormant = YES;
-        _mbglMap->pause();
     }
 
     // Observe for changes to the global access token (and find out the current one).
@@ -770,8 +769,7 @@ mbgl::Duration MGLDurationInSeconds(NSTimeInterval duration)
         NSUInteger cacheSize = zoomFactor * cpuFactor * memoryFactor * sizeFactor * 0.5;
 
         _mbglMap->setSourceTileCacheSize(cacheSize);
-
-        _mbglMap->renderSync();
+        _mbglMap->render();
 
         [self updateUserLocationAnnotationView];
     }
@@ -909,7 +907,6 @@ mbgl::Duration MGLDurationInSeconds(NSTimeInterval duration)
     {
         [self validateDisplayLink];
         self.dormant = YES;
-        _mbglMap->pause();
         [self.glView deleteDrawable];
     }
 }
@@ -974,8 +971,6 @@ mbgl::Duration MGLDurationInSeconds(NSTimeInterval duration)
             [self.glSnapshotView addSubview:snapshotTint];
         }
 
-        _mbglMap->pause();
-
         [self.glView deleteDrawable];
     }
 }
@@ -996,8 +991,6 @@ mbgl::Duration MGLDurationInSeconds(NSTimeInterval duration)
         [self.glSnapshotView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
 
         [self.glView bindDrawable];
-
-        _mbglMap->resume();
         
         _displayLink.paused = NO;
     }
