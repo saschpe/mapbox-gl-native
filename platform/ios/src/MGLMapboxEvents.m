@@ -430,6 +430,7 @@ const NSTimeInterval MGLFlushInterval = 60;
         _locationManager.allowsBackgroundLocationUpdates = YES;
     }
 
+    [_locationManager startMonitoringSignificantLocationChanges];
     [_locationManager startUpdatingLocation];
 
     // -[CLLocationManager startMonitoringVisits] is only available in iOS 8+.
@@ -627,6 +628,7 @@ const NSTimeInterval MGLFlushInterval = 60;
         
         // Convert Array of Dictionaries to JSON
         if ([NSJSONSerialization isValidJSONObject:events]) {
+            NSData *compressedData = [request.HTTPBody datab]
             NSData *jsonData = [NSJSONSerialization dataWithJSONObject:events options:NSJSONWritingPrettyPrinted error:nil];
             [request setHTTPBody:jsonData];
 
@@ -893,13 +895,40 @@ const NSTimeInterval MGLFlushInterval = 60;
     [self.locationManager startMonitoringForRegion:region];
 }
 
+static NSInteger zeroSpeedLocations = 0;
+static BOOL isDormant = NO;
+
+- (void)updateLocationStreamingWithLocation:(CLLocation *)location {
+    if (location.speed <= 0.0 && !isDormant) {
+        if (++zeroSpeedLocations >= 50) {
+            zeroSpeedLocations = 0;
+            if (!isDormant) {
+                [self.locationManager stopUpdatingLocation];
+                isDormant = YES;
+                if ([self debugLoggingEnabled]) {
+                    [MGLMapboxEvents pushDebugEvent:MGLEventTypeLocalDebug withAttributes:@{MGLEventKeyLocalDebugDescription: @"dormancy.start"}];
+                }
+            }
+        }
+    } else {
+        if (isDormant) {
+            [self.locationManager startUpdatingLocation];
+            isDormant = NO;
+            if ([self debugLoggingEnabled]) {
+                [MGLMapboxEvents pushDebugEvent:MGLEventTypeLocalDebug withAttributes:@{MGLEventKeyLocalDebugDescription: @"dormancy.end"}];
+            }
+        }
+    }
+}
+
 #pragma mark CLLocationManagerDelegate
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
     CLLocation *loc = locations.lastObject;
-    if (loc.speed <= 0.0) {
-        [self configureLocationManagerWithPassiveSettings];
-        [self establishRegionMonitoringForLocation:loc];
-    }
+//    if (loc.speed <= 0.0) {
+//        [self configureLocationManagerWithPassiveSettings];
+//        [self establishRegionMonitoringForLocation:loc];
+//    }
+    [self updateLocationStreamingWithLocation:loc];
     [MGLMapboxEvents pushEvent:MGLEventTypeLocation withAttributes:@{MGLEventKeyLatitude: @(loc.coordinate.latitude),
                                                                      MGLEventKeyLongitude: @(loc.coordinate.longitude),
                                                                      MGLEventKeySpeed: @(loc.speed),
