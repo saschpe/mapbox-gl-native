@@ -29,10 +29,8 @@ import android.support.annotation.FloatRange;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresPermission;
 import android.support.annotation.UiThread;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.util.LongSparseArray;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ScaleGestureDetectorCompat;
 import android.support.v7.app.AlertDialog;
@@ -92,10 +90,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -696,7 +690,7 @@ public class MapView extends FrameLayout {
      */
     @UiThread
     @FloatRange(from = MapboxConstants.MINIMUM_ZOOM, to = MapboxConstants.MAXIMUM_ZOOM)
-    double getZoom() {
+    public double getZoom() {
         return mNativeMapView.getZoom();
     }
 
@@ -708,7 +702,7 @@ public class MapView extends FrameLayout {
      * @param minZoom The new minimum zoom level.
      */
     @UiThread
-    void setMinZoom(@FloatRange(from = MapboxConstants.MINIMUM_ZOOM, to = MapboxConstants.MAXIMUM_ZOOM) double minZoom) {
+    public void setMinZoom(@FloatRange(from = MapboxConstants.MINIMUM_ZOOM, to = MapboxConstants.MAXIMUM_ZOOM) double minZoom) {
         mNativeMapView.setMinZoom(minZoom);
     }
 
@@ -760,7 +754,7 @@ public class MapView extends FrameLayout {
      *
      * @param enabled If true, the zoom controls are enabled.
      */
-    void setZoomControlsEnabled(boolean enabled) {
+    public void setZoomControlsEnabled(boolean enabled) {
         mZoomButtonsController.setVisible(enabled);
     }
 
