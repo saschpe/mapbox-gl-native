@@ -79,6 +79,9 @@ public:
     // Constructs a LatLngBounds object with the tile's exact boundaries.
     LatLngBounds(const TileID&);
 
+    LatLngBounds(const LatLng& sw_, const LatLng& ne_)
+        : sw(sw_), ne(ne_) {}
+
     double south() const { return sw.latitude; }
     double west()  const { return sw.longitude; }
     double north() const { return ne.latitude; }
@@ -128,9 +131,6 @@ public:
 private:
     LatLng sw;
     LatLng ne;
-
-    LatLngBounds(const LatLng& sw_, const LatLng& ne_)
-        : sw(sw_), ne(ne_) {}
 
     friend bool operator==(const LatLngBounds&, const LatLngBounds&);
     friend bool operator!=(const LatLngBounds&, const LatLngBounds&);
