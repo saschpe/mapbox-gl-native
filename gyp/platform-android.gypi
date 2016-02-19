@@ -11,14 +11,14 @@
 
       'sources': [
         '../platform/android/src/log_android.cpp',
-        '../platform/default/async_task.cpp',
-        '../platform/default/run_loop.cpp',
+        '../platform/android/src/async_task.cpp',
+        '../platform/android/src/run_loop.cpp',
+        '../platform/android/src/timer.cpp',
         '../platform/default/thread.cpp',
         '../platform/default/string_stdlib.cpp',
         '../platform/default/image.cpp',
         '../platform/default/png_reader.cpp',
         '../platform/default/jpeg_reader.cpp',
-        '../platform/default/timer.cpp',
         '../platform/default/default_file_source.cpp',
         '../platform/default/online_file_source.cpp',
         '../platform/default/mbgl/storage/offline.hpp',
@@ -63,6 +63,7 @@
         '../include',
         '../src',
         '../platform/default',
+        '../platform/android/src',
       ],
 
       'conditions': [
