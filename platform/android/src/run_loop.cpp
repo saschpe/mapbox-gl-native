@@ -3,6 +3,7 @@
 #include <mbgl/util/thread_local.hpp>
 
 #include <mbgl/jni/thread_attachment.hpp>
+#include <mbgl/jni/global_ref.hpp>
 
 #include <jni.hpp>
 #include <jni.h>
@@ -45,13 +46,13 @@ public:
 
     jni::ThreadAttachment env { mbgl::android::theJVM };
 
-    jclass looperClass;
+    jni::GlobalRef<jclass> looperClass;
     jmethodID prepare;
     jmethodID loop;
     jmethodID myLooper;
     jmethodID quitSafely;
 
-    jclass handlerClass;
+    jni::GlobalRef<jclass> handlerClass;
     jmethodID handlerNew;
     jmethodID post;
     jmethodID postDelayed;
