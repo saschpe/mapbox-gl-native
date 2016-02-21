@@ -107,6 +107,12 @@ namespace PlusPlus
         using type = Unwrapped&&;
        };
     
+    template < template <class> class FunctorFamily >
+    struct TypeThatWrapsTo_Specializer< FunctorFamily, void >
+       {
+        using type = void;
+       };
+
     template < template <class> class FunctorFamily, class Desired >
     using TypeThatWrapsTo = typename TypeThatWrapsTo_Specializer< FunctorFamily, Desired >::type;
     

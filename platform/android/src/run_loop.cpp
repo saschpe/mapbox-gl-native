@@ -2,8 +2,7 @@
 #include <mbgl/util/async_task.hpp>
 #include <mbgl/util/thread_local.hpp>
 
-#include <mbgl/jni/thread_attachment.hpp>
-#include <mbgl/jni/global_ref.hpp>
+#include <jni/jni.hpp>
 
 #include <jni.hpp>
 #include <jni.h>
@@ -19,47 +18,50 @@ static RunLoop mainRunLoop;
 class RunLoop::Impl {
 public:
     Impl() {
-        looperClass = env.FindClass("android/os/Looper");
-        prepare  = env.GetStaticMethodID(looperClass, "prepare",  "()V");
-        loop     = env.GetStaticMethodID(looperClass, "loop",     "()V");
-        myLooper = env.GetStaticMethodID(looperClass, "myLooper", "()Landroid/os/Looper;");
-        quitSafely = env.GetMethodID(looperClass, "quitSafely", "()V");
-
-        handlerClass    = env.FindClass("android/os/Handler");
-        handlerNew      = env.GetMethodID(handlerClass, "<init>", "(Landroid/os/Looper;)V");
-        post            = env.GetMethodID(handlerClass, "post", "(Ljava/lang/Runnable;)B");
-        postDelayed     = env.GetMethodID(handlerClass, "postDelayed", "(Ljava/lang/Runnable;L)B");
-        removeCallbacks = env.GetMethodID(handlerClass, "removeCallbacks", "(Ljava/lang/Runnable;)V");
-
-        env.CallStaticVoidMethod(looperClass, prepare);
-        looper = env.CallStaticObjectMethod(looperClass, myLooper);
-        handler = env.NewObject(handlerClass, handlerNew, looper);
+//        handler = env.NewObject(handlerClass, handlerNew, looper);
     }
 
     void run() {
-        env.CallStaticVoidMethod(looperClass, loop);
+//        env.CallStaticVoidMethod(looperClass, loop);
     }
 
     void stop() {
-        env.CallVoidMethod(looper, quitSafely);
+//        env.CallVoidMethod(looper, quitSafely);
     }
 
-    jni::ThreadAttachment env { mbgl::android::theJVM };
+    jni::JavaVM& vm { *mbgl::android::theJVM };
+    jni::UniqueEnv env { jni::AttachCurrentThread(vm) };
 
-    jni::GlobalRef<jclass> looperClass;
-    jmethodID prepare;
-    jmethodID loop;
-    jmethodID myLooper;
-    jmethodID quitSafely;
+    jni::UniqueGlobalRef<jni::jclass> looperClass
+        { jni::NewGlobalRef(*env, jni::FindClass(*env, "android/os/Looper")) };
+    const jni::jmethodID& prepare
+        { jni::GetStaticMethodID(*env, *looperClass, "prepare", "()V") };
+    const jni::jmethodID& loop
+        { jni::GetStaticMethodID(*env, *looperClass, "loop", "()V") };
+    const jni::jmethodID& myLooper
+        { jni::GetStaticMethodID(*env, *looperClass, "myLooper", "()Landroid/os/Looper;") };
+    const jni::jmethodID& quitSafely
+        { jni::GetMethodID(*env, *looperClass, "quitSafely", "()V") };
 
-    jni::GlobalRef<jclass> handlerClass;
-    jmethodID handlerNew;
-    jmethodID post;
-    jmethodID postDelayed;
-    jmethodID removeCallbacks;
+    jni::UniqueGlobalRef<jni::jclass> handlerClass
+        { jni::NewGlobalRef(*env, jni::FindClass(*env, "android/os/Handler")) };
+    const jni::jmethodID& handlerNew
+        { jni::GetMethodID(*env, *handlerClass, "<init>", "(Landroid/os/Looper;)V") };
+    const jni::jmethodID& post
+        { jni::GetMethodID(*env, *handlerClass, "post", "(Ljava/lang/Runnable;)B") };
+    const jni::jmethodID& postDelayed
+        { jni::GetMethodID(*env, *handlerClass, "postDelayed", "(Ljava/lang/Runnable;L)B") };
+    const jni::jmethodID& removeCallbacks
+        { jni::GetMethodID(*env, *handlerClass, "removeCallbacks", "(Ljava/lang/Runnable;)V") };
 
-    jobject looper;
-    jobject handler;
+//    const jni::jobject& looper
+//        { ( jni::CallStaticVoidMethod(*env, *looperClass, prepare),
+//            jni::CallStaticObjectMethod(*env, *looperClass, myLooper) ) };
+
+    jni::jobject* looper
+        { jni::CallStaticObjectMethod(*env, *looperClass, myLooper) };
+
+    const jni::jobject* handler;
 
     std::unique_ptr<AsyncTask> async;
 };

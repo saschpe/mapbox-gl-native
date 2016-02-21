@@ -10,10 +10,14 @@
       ],
 
       'sources': [
+        '../platform/android/src/jni/basics.hpp',
+        '../platform/android/src/jni/errors.cpp',
+        '../platform/android/src/jni/errors.hpp',
+        '../platform/android/src/jni/invoke.hpp',
+        '../platform/android/src/jni/jni.cpp',
+        '../platform/android/src/jni/jni.hpp',
         '../platform/android/src/log_android.cpp',
-        '../platform/android/src/async_task.cpp',
         '../platform/android/src/run_loop.cpp',
-        '../platform/android/src/timer.cpp',
         '../platform/default/thread.cpp',
         '../platform/default/string_stdlib.cpp',
         '../platform/default/image.cpp',
