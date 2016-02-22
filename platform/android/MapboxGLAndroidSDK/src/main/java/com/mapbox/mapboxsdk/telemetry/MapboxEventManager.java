@@ -492,8 +492,8 @@ public class MapboxEventManager {
                 OkHttpClient client = new OkHttpClient.Builder().certificatePinner(certificatePinner).build();
                 RequestBody body = RequestBody.create(JSON, jsonArray.toString());
 
-                String url = eventsURL + "/events/v1?access_token=" + accessToken;
-                Log.d(TAG, "url = " + url);
+                String url = eventsURL + "/events/v2?access_token=" + accessToken;
+                Log.i(TAG, "url = " + url);
 
                 Request request = new Request.Builder()
                         .url(url)
@@ -501,7 +501,7 @@ public class MapboxEventManager {
                         .post(body)
                         .build();
                 Response response = client.newCall(request).execute();
-                Log.d(TAG, "Response Code from Mapbox Events Server: " + response.code() + " for " + events.size() + " events sent in.");
+                Log.i(TAG, "Response Code from Mapbox Events Server: " + response.code() + " for " + events.size() + " events sent in.");
 
                 // Reset Events
                 // ============
