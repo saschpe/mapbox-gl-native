@@ -8,11 +8,13 @@
 
 namespace jni
    {
-    // JNI jint error codes are wrapped by std::error_code with a custom category,
-    // following http://blog.think-async.com/2010/04/system-error-support-in-c0x-part-4.html
-
     enum class error : int {};
+   }
 
+template <> struct std::is_error_code_enum<jni::error> : public true_type {};
+
+namespace jni
+   {
     const error jni_ok        = error(JNI_OK);
     const error jni_err       = error(JNI_ERR);
     const error jni_edetached = error(JNI_EDETACHED);
@@ -21,12 +23,8 @@ namespace jni
     const std::error_category& ErrorCategory();
     std::error_code make_error_code(error);
 
-    template <>
-    struct Wrapper<std::error_code>
-       {
-        std::error_code operator()(::jint code) const { return std::error_code(code, ErrorCategory()); }
-        ::jint Inverse(const std::error_code& e) const { return e.value(); }
-       };
+    inline void CheckErrorCode(jint err)
+       { if (err != JNI_OK) throw std::system_error(err, ErrorCategory()); }
 
 
     // An exception class indicating the presence of a pending Java exception.
@@ -44,36 +42,10 @@ namespace jni
             const char* what() const noexcept final { return "pending Java exception"; }
        };
 
-    // A standalone group that checks for pending Java exceptions.
+    inline void CheckJavaException( JNIEnv& env )
+       { if (env.ExceptionCheck()) throw PendingJavaException(); }
 
-    struct CheckJavaException
-       {
-        JNIEnv& env;
-
-        CheckJavaException(JNIEnv& e) : env(e) {}
-
-        bool CheckForFailure() const                             { return env.ExceptionCheck(); }
-        std::tuple<PendingJavaException> ThrownParts() const     { return PendingJavaException(); }
-
-        std::tuple<> PassedParts()   const { return std::tuple<>(); }
-        std::tuple<> ReturnedParts() const { return std::tuple<>(); }
-       };
-
-
-    // A result group that checks errors, throwing if the result is not jni_ok.
-
-    struct ErrorResult
-       {
-        using ResultType = std::error_code;
-
-        bool CheckForFailure(const std::error_code&) const;
-        std::tuple<std::system_error> ThrownParts(std::error_code&) const;
-
-        std::tuple<> ReturnedParts(const std::error_code&) const { return std::tuple<>(); }
-       };
-   }
-
-namespace std
-   {
-    template <> struct is_error_code_enum<jni::error> : public true_type {};
+    template < class R >
+    R CheckJavaException( JNIEnv& env, R&& r )
+       { CheckJavaException(env); return std::move(r); }
    }
