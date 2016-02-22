@@ -107,165 +107,82 @@ namespace jni
        }
 
 
-    template < class... Args >
-    jobject* CallObjectMethod(JNIEnv& env, jobject& obj, jmethodID& method, Args&&... args)
+    template < class R > struct CallMethods;
+
+    template <> struct CallMethods< jobject* >
        {
-        return CheckJavaException(env,
-            env.CallObjectMethodA(&obj, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
+        static constexpr auto       Method = &JNIEnv::CallObjectMethodA;
+        static constexpr auto StaticMethod = &JNIEnv::CallStaticObjectMethodA;
+       };
+
+    template <> struct CallMethods< jboolean >
+       {
+        static constexpr auto       Method = &JNIEnv::CallBooleanMethodA;
+        static constexpr auto StaticMethod = &JNIEnv::CallStaticBooleanMethodA;
+       };
+
+    template <> struct CallMethods< jbyte >
+       {
+        static constexpr auto       Method = &JNIEnv::CallByteMethodA;
+        static constexpr auto StaticMethod = &JNIEnv::CallStaticByteMethodA;
+       };
+
+    template <> struct CallMethods< jchar >
+       {
+        static constexpr auto       Method = &JNIEnv::CallCharMethodA;
+        static constexpr auto StaticMethod = &JNIEnv::CallStaticCharMethodA;
+       };
+
+    template <> struct CallMethods< jshort >
+       {
+        static constexpr auto       Method = &JNIEnv::CallShortMethodA;
+        static constexpr auto StaticMethod = &JNIEnv::CallStaticShortMethodA;
+       };
+
+    template <> struct CallMethods< jint >
+       {
+        static constexpr auto       Method = &JNIEnv::CallIntMethodA;
+        static constexpr auto StaticMethod = &JNIEnv::CallStaticIntMethodA;
+       };
+
+    template <> struct CallMethods< jlong >
+       {
+        static constexpr auto       Method = &JNIEnv::CallLongMethodA;
+        static constexpr auto StaticMethod = &JNIEnv::CallStaticLongMethodA;
+       };
+
+    template <> struct CallMethods< jfloat >
+       {
+        static constexpr auto       Method = &JNIEnv::CallFloatMethodA;
+        static constexpr auto StaticMethod = &JNIEnv::CallStaticFloatMethodA;
+       };
+
+    template <> struct CallMethods< jdouble >
+       {
+        static constexpr auto       Method = &JNIEnv::CallDoubleMethodA;
+        static constexpr auto StaticMethod = &JNIEnv::CallStaticDoubleMethodA;
+       };
+
+    template <> struct CallMethods< void >
+       {
+        static constexpr auto       Method = &JNIEnv::CallVoidMethodA;
+        static constexpr auto StaticMethod = &JNIEnv::CallStaticVoidMethodA;
+       };
+
+    template < class R, class... Args >
+    R CallMethod(JNIEnv& env, jobject& obj, jmethodID& method, Args&&... args)
+       {
+        CheckJavaExceptionOnExit checker(env);
+        auto packedArgs = MakeArray<jvalue>(std::forward<Args>(args)...);
+        return (env.*(CallMethods<R>::Method))(&obj, &method, packedArgs.data());
        }
 
-    template < class... Args >
-    jboolean CallBooleanMethod(JNIEnv& env, jobject& obj, jmethodID& method, Args&&... args)
+    template < class R, class... Args >
+    R CallStaticMethod(JNIEnv& env, jclass& clazz, jmethodID& method, Args&&... args)
        {
-        return CheckJavaException(env,
-            env.CallBooleanMethodA(&obj, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    jbyte CallByteMethod(JNIEnv& env, jobject& obj, jmethodID& method, Args&&... args)
-       {
-        return CheckJavaException(env,
-            env.CallByteMethodA(&obj, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    jchar CallCharMethod(JNIEnv& env, jobject& obj, jmethodID& method, Args&&... args)
-       {
-        return CheckJavaException(env,
-            env.CallCharMethodA(&obj, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    jshort CallShortMethod(JNIEnv& env, jobject& obj, jmethodID& method, Args&&... args)
-       {
-        return CheckJavaException(env,
-            env.CallShortMethodA(&obj, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    jint CallIntMethod(JNIEnv& env, jobject& obj, jmethodID& method, Args&&... args)
-       {
-        return CheckJavaException(env,
-            env.CallIntMethodA(&obj, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    jlong CallLongMethod(JNIEnv& env, jobject& obj, jmethodID& method, Args&&... args)
-       {
-        return CheckJavaException(env,
-            env.CallLongMethodA(&obj, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    jfloat CallFloatMethod(JNIEnv& env, jobject& obj, jmethodID& method, Args&&... args)
-       {
-        return CheckJavaException(env,
-            env.CallFloatMethodA(&obj, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    jdouble CallDoubleMethod(JNIEnv& env, jobject& obj, jmethodID& method, Args&&... args)
-       {
-        return CheckJavaException(env,
-            env.CallDoubleMethodA(&obj, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    void CallVoidMethod(JNIEnv& env, jobject& obj, jmethodID& method, Args&&... args)
-       {
-        env.CallVoidMethodA(&obj, &method,
-            MakeArray<jvalue>(std::forward<Args>(args)...).data());
-        CheckJavaException(env);
-       }
-
-
-    template < class... Args >
-    jobject* CallStaticObjectMethod(JNIEnv& env, jclass& clazz, jmethodID& method, Args&&... args)
-       {
-        return CheckJavaException(env,
-            env.CallStaticObjectMethodA(&clazz, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    jboolean CallStaticBooleanMethod(JNIEnv& env, jclass& clazz, jmethodID& method, Args&&... args)
-       {
-        return CheckJavaException(env,
-            env.CallStaticBooleanMethodA(&clazz, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    jbyte CallStaticByteMethod(JNIEnv& env, jclass& clazz, jmethodID& method, Args&&... args)
-       {
-        return CheckJavaException(env,
-            env.CallStaticByteMethodA(&clazz, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    jchar CallStaticCharMethod(JNIEnv& env, jclass& clazz, jmethodID& method, Args&&... args)
-       {
-        return CheckJavaException(env,
-            env.CallStaticCharMethodA(&clazz, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    jshort CallStaticShortMethod(JNIEnv& env, jclass& clazz, jmethodID& method, Args&&... args)
-       {
-        return CheckJavaException(env,
-            env.CallStaticShortMethodA(&clazz, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    jint CallStaticIntMethod(JNIEnv& env, jclass& clazz, jmethodID& method, Args&&... args)
-       {
-        return CheckJavaException(env,
-            env.CallStaticIntMethodA(&clazz, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    jlong CallStaticLongMethod(JNIEnv& env, jclass& clazz, jmethodID& method, Args&&... args)
-       {
-        return CheckJavaException(env,
-            env.CallStaticLongMethodA(&clazz, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    jfloat CallStaticFloatMethod(JNIEnv& env, jclass& clazz, jmethodID& method, Args&&... args)
-       {
-        return CheckJavaException(env,
-            env.CallStaticFloatMethodA(&clazz, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    jdouble CallStaticDoubleMethod(JNIEnv& env, jclass& clazz, jmethodID& method, Args&&... args)
-       {
-        return CheckJavaException(env,
-            env.CallStaticDoubleMethodA(&clazz, &method,
-                MakeArray<jvalue>(std::forward<Args>(args)...).data()));
-       }
-
-    template < class... Args >
-    void CallStaticVoidMethod(JNIEnv& env, jclass& clazz, jmethodID& method, Args&&... args)
-       {
-        env.CallStaticVoidMethodA(&clazz, &method,
-            MakeArray<jvalue>(std::forward<Args>(args)...).data());
-        CheckJavaException(env);
+        CheckJavaExceptionOnExit checker(env);
+        auto packedArgs = MakeArray<jvalue>(std::forward<Args>(args)...);
+        return (env.*(CallMethods<R>::StaticMethod))(&clazz, &method, packedArgs.data());
        }
 
 

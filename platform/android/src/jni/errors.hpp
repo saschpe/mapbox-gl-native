@@ -48,4 +48,14 @@ namespace jni
     template < class R >
     R CheckJavaException( JNIEnv& env, R&& r )
        { CheckJavaException(env); return std::move(r); }
+
+    class CheckJavaExceptionOnExit
+       {
+        private:
+            JNIEnv& env;
+
+        public:
+             CheckJavaExceptionOnExit(JNIEnv& e) : env(e) {}
+            ~CheckJavaExceptionOnExit() { CheckJavaException(env); }
+       };
    }
