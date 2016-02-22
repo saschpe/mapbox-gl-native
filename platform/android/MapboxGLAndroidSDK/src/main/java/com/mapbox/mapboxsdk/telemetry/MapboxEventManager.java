@@ -258,12 +258,8 @@ public class MapboxEventManager {
         Hashtable<String, Object> event = new Hashtable<>();
         event.put(MapboxEvent.ATTRIBUTE_EVENT, MapboxEvent.TYPE_TURNSTILE);
         event.put(MapboxEvent.ATTRIBUTE_CREATED, dateFormat.format(new Date()));
-/*
-        // Already set by processing
-        event.put(MapboxEvent.ATTRIBUTE_APP_BUNDLE_ID, context.getPackageName());
-        event.put(MapboxEvent.ATTRIBUTE_VERSION, MapboxEvent.VERSION_NUMBER);
-        event.put(MapboxEvent.ATTRIBUTE_VENDOR_ID, mapboxVendorId);
-*/
+        event.put(MapboxEvent.ATTRIBUTE_USERID, mapboxVendorId);
+        event.put(MapboxEvent.ATTRIBUTE_ENABLED_TELEMETRY, telemetryEnabled);
 
         events.add(event);
 

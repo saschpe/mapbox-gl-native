@@ -3,7 +3,7 @@ package com.mapbox.mapboxsdk.telemetry;
 import java.io.Serializable;
 
 public class MapboxEvent implements Serializable {
-    public static final int VERSION_NUMBER = 1;
+    public static final int VERSION_NUMBER = 2;
     public static final String MGLMapboxEventsUserAgent = "MapboxEventsAndroid/1.1";
     public static final String MAPBOX_EVENTS_BASE_URL = "https://api.mapbox.com";
 
@@ -41,6 +41,8 @@ public class MapboxEvent implements Serializable {
 
     // Event Attributes
     public static final String ATTRIBUTE_EVENT = "event";
+    public static final String ATTRIBUTE_USERID = "userId";
+    public static final String ATTRIBUTE_ENABLED_TELEMETRY = "enabled.telemetry";
     public static final String ATTRIBUTE_SESSION_ID = "sessionId";
     public static final String ATTRIBUTE_VERSION = "version";
     public static final String ATTRIBUTE_CREATED = "created";
