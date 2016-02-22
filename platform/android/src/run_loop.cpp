@@ -19,53 +19,47 @@ static RunLoop mainRunLoop;
 
 class RunLoop::Impl {
 public:
-    Impl() {
-    }
-
-    void run() {
-        jni::CallStaticMethod<void>(*env, *looperClass, loop);
-    }
-
-    void stop() {
-        jni::CallMethod<void>(*env, *looper, quitSafely);
-    }
-
     jni::JavaVM& vm { *mbgl::android::theJVM };
     jni::UniqueEnv env { jni::AttachCurrentThread(vm) };
 
-//    struct LooperTag { static constexpr auto path = "android/os/Looper"; };
-//    struct HandlerTag { static constexpr auto path = "android/os/Handler"; };
+    struct Looper { static constexpr auto path = "android/os/Looper"; };
+    struct Handler { static constexpr auto path = "android/os/Handler"; };
+    struct Runnable { static constexpr auto path = "java/lang/Runnable"; };
 
-    jni::jclass* looperClass
-        { &jni::FindClass(*env, "android/os/Looper") };
-    jni::jmethodID& prepare
-        { jni::GetStaticMethodID(*env, *looperClass, "prepare", "()V") };
-    jni::jmethodID& loop
-        { jni::GetStaticMethodID(*env, *looperClass, "loop", "()V") };
-    jni::jmethodID& myLooper
-        { jni::GetStaticMethodID(*env, *looperClass, "myLooper", "()Landroid/os/Looper;") };
-    jni::jmethodID& quitSafely
-        { jni::GetMethodID(*env, *looperClass, "quitSafely", "()V") };
+    jni::Class<Looper> looperClass { *env };
 
-    jni::jclass* handlerClass
-        { &jni::FindClass(*env, "android/os/Handler") };
-    jni::jmethodID& handlerNew
-        { jni::GetMethodID(*env, *handlerClass, "<init>", "(Landroid/os/Looper;)V") };
-    jni::jmethodID& post
-        { jni::GetMethodID(*env, *handlerClass, "post", "(Ljava/lang/Runnable;)B") };
-    jni::jmethodID& postDelayed
-        { jni::GetMethodID(*env, *handlerClass, "postDelayed", "(Ljava/lang/Runnable;L)B") };
-    jni::jmethodID& removeCallbacks
-        { jni::GetMethodID(*env, *handlerClass, "removeCallbacks", "(Ljava/lang/Runnable;)V") };
+    jni::StaticMethod<Looper, void ()> prepare
+        { looperClass, "prepare" };
+    jni::StaticMethod<Looper, void ()> loop
+        { looperClass, "loop" };
+    jni::StaticMethod<Looper, jni::Object<Looper> ()> myLooper
+        { looperClass, "myLooper" };
+    jni::Method<Looper, void ()> quitSafely
+        { looperClass, "quitSafely" };
 
-    jni::UniqueGlobalRef<jni::jobject> looper
-        { ( jni::CallStaticMethod<void>(*env, *looperClass, prepare),
-            jni::NewGlobalRef(*env, *jni::CallStaticMethod<jni::jobject*>(*env, *looperClass, myLooper)) ) };
+    jni::Class<Handler> handlerClass { *env };
 
-    jni::UniqueGlobalRef<jni::jobject> handler
-        { jni::NewGlobalRef(*env, jni::NewObject(*env, *handlerClass, handlerNew, *looper)) };
+    jni::Constructor<Handler, jni::Object<Looper>> newHandler
+        { handlerClass };
+    jni::Method<Handler, bool (jni::Object<Runnable>)> post
+        { handlerClass, "post" };
+    jni::Method<Handler, bool (jni::Object<Runnable>)> postDelayed
+        { handlerClass, "postDelayed" };
+    jni::Method<Handler, void (jni::Object<Runnable>)> removeCallbacks
+        { handlerClass, "removeCallbacks" };
+
+    jni::Object<Looper> looper    { ( prepare(), myLooper() ) };
+    jni::Object<Handler> handler  { newHandler(looper) };
 
     std::unique_ptr<AsyncTask> async;
+
+    void run() {
+        loop();
+    }
+
+    void stop() {
+        quitSafely(looper);
+    }
 };
 
 RunLoop* RunLoop::Get() {

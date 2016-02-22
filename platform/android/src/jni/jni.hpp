@@ -51,6 +51,7 @@ namespace jni
     inline jvalue MakeAnything( ThingToMake<jvalue>, jlong    j ) { jvalue v; v.j =  j; return v; };
     inline jvalue MakeAnything( ThingToMake<jvalue>, jfloat   f ) { jvalue v; v.f =  f; return v; };
     inline jvalue MakeAnything( ThingToMake<jvalue>, jdouble  d ) { jvalue v; v.d =  d; return v; };
+    inline jvalue MakeAnything( ThingToMake<jvalue>, jobject* l ) { jvalue v; v.l =  l; return v; };
     inline jvalue MakeAnything( ThingToMake<jvalue>, jobject& l ) { jvalue v; v.l = &l; return v; };
 
 
@@ -66,10 +67,16 @@ namespace jni
     jclass& FindClass(JNIEnv&, const char*);
 
 
-    struct GlobalRefDeleter
+    class GlobalRefDeleter
        {
-        void operator()(jobject*) const;
-        JNIEnv& env;
+        private:
+            JNIEnv* env = nullptr;
+
+        public:
+            GlobalRefDeleter() = default;
+            GlobalRefDeleter(JNIEnv& e) : env(&e) {}
+
+            void operator()(jobject*) const;
        };
 
     template < class T >
@@ -178,6 +185,14 @@ namespace jni
        }
 
     template < class R, class... Args >
+    R CallMethod(JNIEnv& env, jobject* obj, jmethodID& method, Args&&... args)
+       {
+        CheckJavaExceptionOnExit checker(env);
+        auto packedArgs = MakeArray<jvalue>(std::forward<Args>(args)...);
+        return (env.*(CallMethods<R>::Method))(obj, &method, packedArgs.data());
+       }
+
+    template < class R, class... Args >
     R CallStaticMethod(JNIEnv& env, jclass& clazz, jmethodID& method, Args&&... args)
        {
         CheckJavaExceptionOnExit checker(env);
@@ -189,13 +204,16 @@ namespace jni
     jboolean ExceptionCheck(JNIEnv&);
 
 
-    // UniqueEnv refers to a JNIEnv obtained via AttachCurrentThread, and represents
-    // the obligation to close it via DetachCurrentThread. It stores a reference to
-    // the JavaVM to which the JNIEnv belongs, to pass to DetachCurrentThread.
-    struct JNIEnvDeleter
+    class JNIEnvDeleter
        {
-        void operator()(JNIEnv*) const;
-        JavaVM& vm;
+        private:
+            JavaVM* vm = nullptr;
+
+        public:
+            JNIEnvDeleter() = default;
+            JNIEnvDeleter(JavaVM& v) : vm(&v) {}
+
+            void operator()(JNIEnv*) const;
        };
 
     using UniqueEnv = std::unique_ptr<JNIEnv, JNIEnvDeleter>;
