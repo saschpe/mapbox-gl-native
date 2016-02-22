@@ -100,16 +100,18 @@ public class MapboxEventManager {
 
         // Load / Create Vendor Id
         if (prefs.contains(MapboxConstants.MAPBOX_SHARED_PREFERENCE_KEY_VENDORID)) {
-            mapboxVendorId = prefs.getString(MapboxConstants.MAPBOX_SHARED_PREFERENCE_KEY_VENDORID, "Default Value");
-            Log.d(TAG, "Found Vendor Id = " + mapboxVendorId);
-        } else {
+            mapboxVendorId = prefs.getString(MapboxConstants.MAPBOX_SHARED_PREFERENCE_KEY_VENDORID, "");
+            Log.d(TAG, "Found Vendor Id = '" + mapboxVendorId + "'");
+        }
+        if (TextUtils.isEmpty(mapboxVendorId)) {
+            Log.d(TAG, "Vendor Id either doesn't exist or was empty string.");
             String vendorId = UUID.randomUUID().toString();
-            vendorId = encodeString(vendorId);
+            mapboxVendorId = encodeString(vendorId);
             SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(MapboxConstants.MAPBOX_SHARED_PREFERENCE_KEY_VENDORID, vendorId);
+            editor.putString(MapboxConstants.MAPBOX_SHARED_PREFERENCE_KEY_VENDORID, mapboxVendorId);
             editor.apply();
             editor.commit();
-            Log.d(TAG, "Set New Vendor Id = " + vendorId);
+            Log.d(TAG, "Set New Vendor Id = " + mapboxVendorId);
         }
 
         // Create Initial Session Id
