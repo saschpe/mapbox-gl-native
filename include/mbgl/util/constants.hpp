@@ -23,6 +23,8 @@ extern const double MAX_ZOOM;
 
 extern const uint64_t DEFAULT_MAX_CACHE_SIZE;
 
+extern const int8_t CLOCK_SKEW_RETRY_TIMEOUT;
+
 } // namespace util
 
 namespace debug {
