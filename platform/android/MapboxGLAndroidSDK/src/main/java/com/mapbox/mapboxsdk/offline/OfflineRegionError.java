@@ -1,7 +1,7 @@
 package com.mapbox.mapboxsdk.offline;
 
 /**
- * Created by antonio on 2/21/16.
+ * An Offline Region error
  */
 public class OfflineRegionError {
 

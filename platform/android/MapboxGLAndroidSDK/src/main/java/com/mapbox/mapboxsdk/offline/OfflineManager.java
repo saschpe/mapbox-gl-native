@@ -88,8 +88,7 @@ public class OfflineManager {
      * Retrieve all regions in the offline database.
      *
      * The query will be executed asynchronously and the results passed to the given
-     * callback, which will be executed on the database thread; it is the responsibility
-     * of the SDK bindings to re-execute a user-provided callback on the main thread.
+     * callback on the main thread.
      */
     public void listOfflineRegions(@NonNull final ListOfflineRegionsCallback callback) {
         listOfflineRegions(mDefaultFileSourcePtr, new ListOfflineRegionsCallback() {
@@ -119,11 +118,10 @@ public class OfflineManager {
      * Create an offline region in the database.
      *
      * When the initial database queries have completed, the provided callback will be
-     * executed on the database thread; it is the responsibility of the SDK bindings
-     * to re-execute a user-provided callback on the main thread.
+     * executed on the main thread.
      *
      * Note that the resulting region will be in an inactive download state; to begin
-     * downloading resources, call `setOfflineRegionDownloadState(OfflineRegionDownloadState::Active)`,
+     * downloading resources, call `OfflineRegion.setDownloadState(DownloadState.STATE_ACTIVE)`,
      * optionally registering an `OfflineRegionObserver` beforehand.
      */
     public void createOfflineRegion(

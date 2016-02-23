@@ -38,9 +38,7 @@ public class OfflineRegion {
          * offline region. Status changes include any change in state of the members
          * of OfflineRegionStatus.
          *
-         * Note that this method will be executed on the database thread; it is the
-         * responsibility of the SDK bindings to wrap this object in an interface that
-         * re-executes the user-provided implementation on the main thread.
+         * This method will be executed on the main thread.
          */
         void onStatusChanged(OfflineRegionStatus status);
 
@@ -50,9 +48,7 @@ public class OfflineRegion {
          * will attempt to re-request failed resources based on an exponential backoff
          * algorithm, or when it detects that network access has been restored.
          *
-         * Note that this method will be executed on the database thread; it is the
-         * responsibility of the SDK bindings to wrap this object in an interface that
-         * re-executes the user-provided implementation on the main thread.
+         * This method will be executed on the main thread.
          */
         void onError(OfflineRegionError error);
     }
@@ -78,7 +74,7 @@ public class OfflineRegion {
      *
      * This state is independent of whether or not the complete set of resources
      * is currently available for offline use. To check if that is the case, use
-     * `OfflineRegionStatus::complete()`.
+     * `OfflineRegionStatus.complete()`.
      */
 
     @IntDef({STATE_INACTIVE, STATE_ACTIVE})
@@ -157,9 +153,8 @@ public class OfflineRegion {
 
     /**
      * Retrieve the current status of the region. The query will be executed
-     * asynchronously and the results passed to the given callback, which will be
-     * executed on the database thread; it is the responsibility of the SDK bindings
-     * to re-execute a user-provided callback on the main thread.
+     * asynchronously and the results passed to the given callback which will be
+     * executed on the main thread.
      */
     public void getStatus(@NonNull final OfflineRegionStatusCallback callback) {
         getOfflineRegionStatus(this, new OfflineRegionStatusCallback() {
@@ -197,8 +192,7 @@ public class OfflineRegion {
      * region.
      *
      * When the operation is complete or encounters an error, the given callback will be
-     * executed on the database thread; it is the responsibility of the SDK bindings
-     * to re-execute a user-provided callback on the main thread.
+     * executed on the main thread.
      */
     public void delete(@NonNull final OfflineRegionDeleteCallback callback) {
         deleteOfflineRegion(this, new OfflineRegionDeleteCallback() {

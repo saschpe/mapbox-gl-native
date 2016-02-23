@@ -7,11 +7,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 /**
- * Arbitrary binary region metadata. The contents are opaque to the mbgl implementation;
- * it just stores and retrieves a BLOB. SDK bindings should leave the interpretation of
- * this data up to the application; they _should not_ enforce a higher-level data format.
- * In the future we want offline database to be portable across target platforms, and a
- * platform-specific metadata format would prevent that.
+ * Arbitrary binary region metadata. The contents are opaque to the SDK implementation;
+ * it just stores and retrieves a byte[].
  */
 public class OfflineRegionMetadata {
 
