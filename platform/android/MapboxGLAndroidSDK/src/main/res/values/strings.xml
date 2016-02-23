@@ -9,6 +9,7 @@
     <string name="mapbox_infoWindowTitle">Title</string>
     <string name="mapbox_infoWindowDescription">Description</string>
     <string name="mapbox_infoWindowAddress">Address</string>
+    <string name="mapbox_sdkVersion">3.2.0</string>
 
     <!-- these are public -->
     <string name="mapbox_style_mapbox_streets">mapbox://styles/mapbox/streets-v8</string>

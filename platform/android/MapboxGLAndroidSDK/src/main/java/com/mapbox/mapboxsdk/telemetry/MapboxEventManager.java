@@ -23,11 +23,13 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
+import com.mapbox.mapboxsdk.R;
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
 import com.mapbox.mapboxsdk.location.LocationServices;
 import com.mapbox.mapboxsdk.utils.ApiAccess;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -62,7 +64,7 @@ public class MapboxEventManager {
     private String accessToken = null;
     private String eventsURL = MapboxEvent.MAPBOX_EVENTS_BASE_URL;
 
-    private String userAgent = MapboxEvent.MGLMapboxEventsUserAgent;
+    private String userAgent = MapboxEvent.MAPBOX_EVENTS_USER_AGENT;
 
     private Intent batteryStatus = null;
     private final String operatingSystem = "Android - " + Build.VERSION.RELEASE;
@@ -140,9 +142,12 @@ public class MapboxEventManager {
                 this.accessToken = stagingAccessToken;
             }
 
+            // Get Mapbox Android SDK Version
+            String sdkVersion = context.getResources().getString(R.string.mapbox_sdkVersion);
+
             // Build User Agent
-            if (!TextUtils.isEmpty(appName) && !TextUtils.isEmpty(versionName)) {
-                userAgent = appName + "/" + versionName + "/" + versionCode + " " + userAgent;
+            if (!TextUtils.isEmpty(appName) && !TextUtils.isEmpty(versionName) && !TextUtils.isEmpty(sdkVersion)) {
+                userAgent = appName + "/" + versionName + "/" + versionCode + " " + userAgent + "/" + sdkVersion;
             }
 
         } catch (Exception e) {
