@@ -90,8 +90,7 @@ LatLng TransformState::getLatLng() const {
     ll.latitude  = util::RAD2DEG * (2 * std::atan(std::exp(y / Cc)) - 0.5 * M_PI);
 
     // adjust for world wrap
-    while (ll.longitude >  util::LONGITUDE_MAX) ll.longitude -= util::LONGITUDE_MAX;
-    while (ll.longitude < -util::LONGITUDE_MAX) ll.longitude += util::LONGITUDE_MAX;
+    ll.wrap();
 
     // adjust for date line
     double w = util::tileSize * scale / 2;
