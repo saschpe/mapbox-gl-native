@@ -33,7 +33,6 @@ import com.mapbox.mapboxsdk.utils.ApiAccess;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class OfflineActivity extends AppCompatActivity
         implements DownloadRegionDialog.DownloadRegionDialogListener {
@@ -300,7 +299,7 @@ public class OfflineActivity extends AppCompatActivity
                     // Download complete
                     endProgress("Region downloaded successfully.");
                     return;
-                } else if (!status.isRequiredResourceCountIsIndeterminate()) {
+                } else if (!status.isRequiredResourceCountPrecise()) {
                     // Switch to determinate state
                     setPercentage((int) Math.round(percentage));
                 }

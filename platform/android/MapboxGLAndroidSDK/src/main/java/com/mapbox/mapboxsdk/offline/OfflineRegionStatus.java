@@ -76,7 +76,7 @@ public class OfflineRegionStatus {
         return requiredResourceCount;
     }
 
-    public boolean isRequiredResourceCountIsIndeterminate() {
+    public boolean isRequiredResourceCountPrecise() {
         return requiredResourceCountIsIndeterminate;
     }
 
