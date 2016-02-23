@@ -13,9 +13,11 @@ import java.io.File;
  */
 public class OfflineManager {
 
-    // Default database name and size (1GB)
+    // Default database name
     private final static String OFFLINE_DATABASE_NAME = "mbgl-offline.db";
-    private final static long OFFLINE_MAX_CACHE_SIZE = 1024 * 1024 * 1024;
+
+    // Resources required by offline regions are exempt from this limit
+    private final static long DEFAULT_MAX_CACHE_SIZE = 50 * 1024 * 1024;
 
     // Holds the pointer to JNI DefaultFileSource
     private long mDefaultFileSourcePtr = 0;
@@ -52,7 +54,7 @@ public class OfflineManager {
         // Get a pointer to the DefaultFileSource instance
         String assetRoot = context.getFilesDir().getAbsolutePath();
         String cachePath = assetRoot  + File.separator + OFFLINE_DATABASE_NAME;
-        mDefaultFileSourcePtr = createDefaultFileSource(cachePath, assetRoot, OFFLINE_MAX_CACHE_SIZE);
+        mDefaultFileSourcePtr = createDefaultFileSource(cachePath, assetRoot, DEFAULT_MAX_CACHE_SIZE);
     }
 
     public static synchronized OfflineManager getInstance(Context context) {
