@@ -525,6 +525,7 @@ public class MapboxEventManager {
                     jsonObject.putOpt(MapboxEvent.ATTRIBUTE_MODEL, evt.get(MapboxEvent.ATTRIBUTE_MODEL));
                     jsonObject.putOpt(MapboxEvent.ATTRIBUTE_RESOLUTION, evt.get(MapboxEvent.ATTRIBUTE_RESOLUTION));
                     jsonObject.putOpt(MapboxEvent.ATTRIBUTE_ACCESSIBILITY_FONT_SCALE, evt.get(MapboxEvent.ATTRIBUTE_ACCESSIBILITY_FONT_SCALE));
+                    jsonObject.putOpt(MapboxEvent.KEY_GESTURE_ID, evt.get(MapboxEvent.KEY_GESTURE_ID));
                     jsonObject.putOpt(MapboxEvent.ATTRIBUTE_ORIENTATION, evt.get(MapboxEvent.ATTRIBUTE_ORIENTATION));
                     jsonObject.putOpt(MapboxEvent.ATTRIBUTE_BATTERY_LEVEL, evt.get(MapboxEvent.ATTRIBUTE_BATTERY_LEVEL));
                     jsonObject.putOpt(MapboxEvent.ATTRIBUTE_PLUGGED_IN, evt.get(MapboxEvent.ATTRIBUTE_PLUGGED_IN));

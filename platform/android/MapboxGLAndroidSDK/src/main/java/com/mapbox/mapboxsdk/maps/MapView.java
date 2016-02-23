@@ -1473,14 +1473,9 @@ public class MapView extends FrameLayout {
      */
     private void trackGestureEvent(@NonNull String gestureId, @NonNull float xCoordinate, float yCoordinate) {
 
-        LatLng tapLatLng = fromScreenLocation(new PointF(xCoordinate, yCoordinate));
-
         Hashtable<String, Object> evt = new Hashtable<>();
         evt.put(MapboxEvent.ATTRIBUTE_EVENT, MapboxEvent.TYPE_MAP_CLICK);
         evt.put(MapboxEvent.KEY_GESTURE_ID, gestureId);
-        evt.put(MapboxEvent.KEY_LATITUDE, tapLatLng.getLatitude());
-        evt.put(MapboxEvent.KEY_LONGITUDE, tapLatLng.getLongitude());
-        evt.put(MapboxEvent.KEY_ZOOM, mMapboxMap.getCameraPosition().zoom);
 
         MapboxEventManager.getMapboxEventManager(getContext()).pushEvent(evt);
     }
