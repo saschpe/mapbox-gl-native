@@ -52,7 +52,7 @@ public class OfflineRegionStatus {
      * Is the region complete?
      */
 
-    public boolean complete() {
+    public boolean isComplete() {
         return (completedResourceCount == requiredResourceCount);
     }
 

@@ -74,7 +74,7 @@ public class OfflineRegion {
      *
      * This state is independent of whether or not the complete set of resources
      * is currently available for offline use. To check if that is the case, use
-     * `OfflineRegionStatus.complete()`.
+     * `OfflineRegionStatus.isComplete()`.
      */
 
     @IntDef({STATE_INACTIVE, STATE_ACTIVE})
