@@ -54,6 +54,7 @@ public class MapboxEvent implements Serializable {
     public static final String ATTRIBUTE_OPERATING_SYSTEM= "operatingSystem";
     public static final String ATTRIBUTE_ORIENTATION = "orientation";
     public static final String ATTRIBUTE_BATTERY_LEVEL = "batteryLevel";
+    public static final String ATTRIBUTE_PLUGGED_IN = "pluggedIn";
     public static final String ATTRIBUTE_APPLICATION_STATE = "applicationState";
     public static final String ATTRIBUTE_RESOLUTION = "resolution";
     public static final String ATTRIBUTE_ACCESSIBILITY_FONT_SCALE = "accessibilityFontScale";

@@ -394,9 +394,7 @@ public class MapView extends FrameLayout {
         if (savedInstanceState == null) {
             Hashtable<String, Object> evt = new Hashtable<>();
             evt.put(MapboxEvent.ATTRIBUTE_EVENT, MapboxEvent.TYPE_MAP_LOAD);
-            evt.put(MapboxEvent.KEY_LATITUDE, mMapboxMap.getCameraPosition().target.getLatitude());
-            evt.put(MapboxEvent.KEY_LONGITUDE, mMapboxMap.getCameraPosition().target.getLongitude());
-            evt.put(MapboxEvent.KEY_ZOOM, mMapboxMap.getCameraPosition().zoom);
+            evt.put(MapboxEvent.ATTRIBUTE_CREATED, MapboxEventManager.getCreateDate());
             MapboxEventManager.getMapboxEventManager(getContext()).pushEvent(evt);
         }
     }
