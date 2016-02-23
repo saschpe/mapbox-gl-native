@@ -65,6 +65,7 @@ public class MapboxEventManager {
     private String userAgent = MapboxEvent.MGLMapboxEventsUserAgent;
 
     private Intent batteryStatus = null;
+    private final String operatingSystem = "Android - " + Build.VERSION.RELEASE;
 
     private DisplayMetrics displayMetrics = null;
 
@@ -220,14 +221,15 @@ public class MapboxEventManager {
     public void addLocationEvent(Location location) {
         // Add Location even to queue
         Hashtable<String, Object> event = new Hashtable<>();
+        event.put(MapboxEvent.ATTRIBUTE_EVENT, MapboxEvent.TYPE_LOCATION);
+        event.put(MapboxEvent.ATTRIBUTE_CREATED, dateFormat.format(new Date()));
+        event.put(MapboxEvent.ATTRIBUTE_SOURCE, MapboxEvent.SOURCE_MAPBOX);
+        event.put(MapboxEvent.ATTRIBUTE_SESSION_ID, encodeString(mapboxSessionId));
         event.put(MapboxEvent.KEY_LATITUDE, location.getLatitude());
         event.put(MapboxEvent.KEY_LONGITUDE, location.getLongitude());
-        event.put(MapboxEvent.KEY_SPEED, location.getSpeed());
-        event.put(MapboxEvent.KEY_COURSE, location.getBearing());
         event.put(MapboxEvent.KEY_ALTITUDE, location.getAltitude());
-        event.put(MapboxEvent.KEY_HORIZONTAL_ACCURACY, location.getAccuracy());
-        event.put(MapboxEvent.ATTRIBUTE_CREATED, dateFormat.format(new Date()));
-        event.put(MapboxEvent.ATTRIBUTE_EVENT, MapboxEvent.TYPE_LOCATION);
+        event.put(MapboxEvent.ATTRIBUTE_OPERATING_SYSTEM, operatingSystem);
+        event.put(MapboxEvent.ATTRIBUTE_APPLICATION_STATE, getApplicationState());
 
         events.add(event);
 
@@ -421,6 +423,7 @@ public class MapboxEventManager {
 
         return status;
     }
+
 
     /**
      * Task responsible for converting stored events and sending them to the server
