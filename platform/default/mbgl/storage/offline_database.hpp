@@ -49,6 +49,13 @@ public:
     OfflineRegionDefinition getRegionDefinition(int64_t regionID);
     OfflineRegionStatus getRegionCompletedStatus(int64_t regionID);
 
+    // Changing or bypassing this limit without permission from Mapbox is prohibited
+    // by the Mapbox Terms of Service.
+    void setOfflineTileCountLimit(uint64_t);
+    uint64_t getOfflineTileCountLimit();
+    bool offlineTileCountLimitExceeded();
+    uint64_t getOfflineTileCount();
+
 private:
     void connect(int flags);
     void ensureSchema();
@@ -78,7 +85,9 @@ private:
                      const std::string&, bool compressed);
 
     std::pair<bool, uint64_t> putInternal(const Resource&, const Response&, bool evict);
-    void markUsed(int64_t regionID, const Resource&);
+
+    // Return value is true iff the resource was previously unused by any other regions.
+    bool markUsed(int64_t regionID, const Resource&);
 
     const std::string path;
     std::unique_ptr<::mapbox::sqlite::Database> db;
@@ -88,6 +97,9 @@ private:
     T getPragma(const char *);
 
     uint64_t maximumCacheSize;
+
+    uint64_t offlineTileCountLimit = util::DEFAULT_OFFLINE_TILE_COUNT_LIMIT;
+    optional<uint64_t> offlineTileCount;
 
     bool evict(uint64_t neededFreeSize);
 };
