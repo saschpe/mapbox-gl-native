@@ -344,7 +344,8 @@ mat4 Painter::translatedMatrix(const mat4& matrix, const std::array<float, 2> &t
     if (translation[0] == 0 && translation[1] == 0) {
         return matrix;
     } else {
-        const double factor = ((double)(1 << id.z)) / state.getScale() * (util::EXTENT / util::tileSize / id.overscaling);
+        const float overscaling = std::pow(2, id.z - id.sourceZ);
+        const double factor = ((double)(1 << id.z)) / state.getScale() * (util::EXTENT / util::tileSize / overscaling);
 
         mat4 vtxMatrix;
         if (anchor == TranslateAnchorType::Viewport) {

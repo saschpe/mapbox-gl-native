@@ -71,7 +71,6 @@ static const LatLngBounds sanFrancisco = LatLngBounds::hull(
 TEST(TileCover, SanFranciscoZ0) {
     auto result = tileCover(sanFrancisco, 0, 0);
     ASSERT_EQ(1, result.size());
-    ASSERT_EQ(0, result[0].w);
     ASSERT_EQ(0, result[0].z);
     ASSERT_EQ(0, result[0].x);
     ASSERT_EQ(0, result[0].y);
