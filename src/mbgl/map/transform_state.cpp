@@ -1,7 +1,6 @@
 #include <mbgl/map/transform_state.hpp>
 #include <mbgl/map/tile_id.hpp>
 #include <mbgl/util/constants.hpp>
-#include <mbgl/util/tile_coordinate.hpp>
 #include <mbgl/util/interpolate.hpp>
 #include <mbgl/util/math.hpp>
 
@@ -243,50 +242,20 @@ double TransformState::worldSize() const {
 }
 
 ScreenCoordinate TransformState::latLngToScreenCoordinate(const LatLng& latLng) const {
-    return coordinateToPoint(latLngToCoordinate(latLng));
-}
-
-LatLng TransformState::screenCoordinateToLatLng(const ScreenCoordinate& point) const {
-    return coordinateToLatLng(pointToCoordinate(point));
-}
-
-TileCoordinate TransformState::latLngToCoordinate(const LatLng& latLng) const {
-    return {
-        lngX(latLng.longitude) / util::tileSize,
-        latY(latLng.latitude) / util::tileSize,
-        getZoom()
-    };
-}
-
-LatLng TransformState::coordinateToLatLng(const TileCoordinate& coord) const {
-    const double worldSize_ = zoomScale(coord.zoom);
-    LatLng latLng = {
-        yLat(coord.row, worldSize_),
-        xLng(coord.column, worldSize_)
-    };
-    while (latLng.longitude < -util::LONGITUDE_MAX) latLng.longitude += 360.0f;
-    while (latLng.longitude > util::LONGITUDE_MAX) latLng.longitude -= 360.0f;
-    return latLng;
-}
-
-ScreenCoordinate TransformState::coordinateToPoint(const TileCoordinate& coord) const {
-    mat4 mat = coordinatePointMatrix(coord.zoom);
+    LatLng wrapped = latLng.wrapped();
+    mat4 mat = coordinatePointMatrix(getZoom());
     vec4<double> p;
-    vec4<double> c = { coord.column, coord.row, 0, 1 };
+    vec4<double> c = { lngX(wrapped.longitude) / util::tileSize, latY(wrapped.latitude) / util::tileSize, 0, 1 };
     matrix::transformMat4(p, c, mat);
     return { p.x / p.w, height - p.y / p.w };
 }
 
-TileCoordinate TransformState::pointToCoordinate(const ScreenCoordinate& point) const {
-
+LatLng TransformState::screenCoordinateToLatLng(const ScreenCoordinate& point) const {
     float targetZ = 0;
-    const double tileZoom = getZoom();
-
-    mat4 mat = coordinatePointMatrix(tileZoom);
-
+    mat4 mat = coordinatePointMatrix(getZoom());
     mat4 inverted;
-    bool err = matrix::invert(inverted, mat);
 
+    bool err = matrix::invert(inverted, mat);
     if (err) throw std::runtime_error("failed to invert coordinatePointMatrix");
 
     double flippedY = height - point.y;
@@ -313,7 +282,11 @@ TileCoordinate TransformState::pointToCoordinate(const ScreenCoordinate& point) 
 
     double t = z0 == z1 ? 0 : (targetZ - z0) / (z1 - z0);
 
-    return { util::interpolate(x0, x1, t), util::interpolate(y0, y1, t), tileZoom };
+    const double worldSize_ = zoomScale(getZoom());
+    return {
+        yLat(util::interpolate(y0, y1, t), worldSize_),
+        xLng(util::interpolate(x0, x1, t), worldSize_)
+    };
 }
 
 mat4 TransformState::coordinatePointMatrix(double z) const {

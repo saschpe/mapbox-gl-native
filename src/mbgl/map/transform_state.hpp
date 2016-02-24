@@ -14,7 +14,6 @@
 namespace mbgl {
 
 class TileID;
-class TileCoordinate;
 
 class TransformState {
     friend class Transform;
@@ -64,12 +63,6 @@ public:
     // Conversion and projection
     ScreenCoordinate latLngToScreenCoordinate(const LatLng&) const;
     LatLng screenCoordinateToLatLng(const ScreenCoordinate&) const;
-
-    TileCoordinate latLngToCoordinate(const LatLng&) const;
-    LatLng coordinateToLatLng(const TileCoordinate&) const;
-
-    ScreenCoordinate coordinateToPoint(const TileCoordinate&) const;
-    TileCoordinate pointToCoordinate(const ScreenCoordinate&) const;
 
     double xLng(double x, double worldSize) const;
     double yLat(double y, double worldSize) const;

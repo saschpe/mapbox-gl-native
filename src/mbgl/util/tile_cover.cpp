@@ -1,10 +1,32 @@
 #include <mbgl/util/tile_cover.hpp>
 #include <mbgl/util/vec.hpp>
-#include <mbgl/util/tile_coordinate.hpp>
 #include <mbgl/util/constants.hpp>
 #include <mbgl/map/transform_state.hpp>
 
 namespace mbgl {
+
+namespace {
+
+// Has floating point z/x/y coordinates
+// Used for computing the tiles that need to be visible in the viewport.
+class TileCoordinate {
+public:
+    double z;
+    double x;
+    double y;
+
+    static TileCoordinate fromLatLng(const TransformState& state, const LatLng& latLng) {
+        return {
+            state.getZoom(),
+            state.lngX(latLng.longitude) / util::tileSize,
+            state.latY(latLng.latitude) / util::tileSize
+        };
+    }
+
+    static TileCoordinate fromScreenCoordinate(const TransformState& state, const ScreenCoordinate& point) {
+        return fromLatLng(state, state.screenCoordinateToLatLng(point));
+    }
+};
 
 // Taken from polymaps src/Layer.js
 // https://github.com/simplegeo/polymaps/blob/master/src/Layer.js#L333-L383
@@ -67,18 +89,20 @@ static void scanTriangle(const ScreenCoordinate& a, const ScreenCoordinate& b, c
     if (bc.dy) scanSpans(ca, bc, ymin, ymax, scanLine);
 }
 
-int32_t coveringZoomLevel(double zoom, SourceType type, uint16_t tileSize) {
-    zoom += std::log(util::tileSize / tileSize) / std::log(2);
-    if (type == SourceType::Raster || type == SourceType::Video) {
-        return ::round(zoom);
-    } else {
-        return std::floor(zoom);
-    }
+static ScreenCoordinate zoomTo(const TileCoordinate& c, double z) {
+    double scale = std::pow(2, z - c.z);
+    return { c.x * scale, c.y * scale };
 }
 
-static ScreenCoordinate zoomTo(const TileCoordinate& c, double z) {
-    double scale = std::pow(2, z - c.zoom);
-    return { c.column * scale, c.row * scale };
+} // namespace
+
+int32_t coveringZoomLevel(double z, SourceType type, uint16_t tileSize) {
+    z += std::log(util::tileSize / tileSize) / std::log(2);
+    if (type == SourceType::Raster || type == SourceType::Video) {
+        return ::round(z);
+    } else {
+        return std::floor(z);
+    }
 }
 
 std::vector<TileID> tileCover(const TileCoordinate& tl_,
@@ -138,11 +162,11 @@ std::vector<TileID> tileCover(const LatLngBounds& bounds_, int32_t z, int32_t ac
 
     const TransformState state;
     return tileCover(
-        state.latLngToCoordinate(bounds.northwest()),
-        state.latLngToCoordinate(bounds.northeast()),
-        state.latLngToCoordinate(bounds.southeast()),
-        state.latLngToCoordinate(bounds.southwest()),
-        state.latLngToCoordinate(bounds.center()),
+        TileCoordinate::fromLatLng(state, bounds.northwest()),
+        TileCoordinate::fromLatLng(state, bounds.northeast()),
+        TileCoordinate::fromLatLng(state, bounds.southeast()),
+        TileCoordinate::fromLatLng(state, bounds.southwest()),
+        TileCoordinate::fromLatLng(state, bounds.center()),
         z, actualZ);
 }
 
@@ -150,11 +174,11 @@ std::vector<TileID> tileCover(const TransformState& state, int32_t z, int32_t ac
     const double w = state.getWidth();
     const double h = state.getHeight();
     return tileCover(
-        state.pointToCoordinate({ 0,   0   }),
-        state.pointToCoordinate({ w,   0   }),
-        state.pointToCoordinate({ w,   h   }),
-        state.pointToCoordinate({ 0,   h   }),
-        state.pointToCoordinate({ w/2, h/2 }),
+        TileCoordinate::fromScreenCoordinate(state, { 0,   0   }),
+        TileCoordinate::fromScreenCoordinate(state, { w,   0   }),
+        TileCoordinate::fromScreenCoordinate(state, { w,   h   }),
+        TileCoordinate::fromScreenCoordinate(state, { 0,   h   }),
+        TileCoordinate::fromScreenCoordinate(state, { w/2, h/2 }),
         z, actualZ);
 }
 
