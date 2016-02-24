@@ -359,23 +359,20 @@ void TransformState::constrain(double& scale_, double& x_, double& y_) const {
 }
 
 void TransformState::moveLatLng(const LatLng& latLng, const ScreenCoordinate& anchor) {
-    if (!latLng || !anchor) {
-        return;
-    }
-    
-    auto coord = latLngToCoordinate(latLng);
-    auto coordAtPoint = pointToCoordinate(anchor);
-    auto coordCenter = pointToCoordinate({ width / 2.0f, height / 2.0f });
-    
-    float columnDiff = coordAtPoint.column - coord.column;
-    float rowDiff = coordAtPoint.row - coord.row;
-    
-    auto newLatLng = coordinateToLatLng({
-        coordCenter.column - columnDiff,
-        coordCenter.row - rowDiff,
-        coordCenter.zoom
-    });
-    setLatLngZoom(newLatLng, coordCenter.zoom);
+    if (!latLng || !anchor) return;
+
+    static auto latLngToCoord = [&](const LatLng& ll) -> vec2<double> {
+        return { lngX(ll.longitude) / util::tileSize, latY(ll.latitude) / util::tileSize };
+    };
+
+    static auto coordToLatLng = [&](const vec2<double>& c) -> LatLng {
+        return { yLat(c.y, zoomScale(getZoom())), xLng(c.x, zoomScale(getZoom())), LatLng::Wrapped };
+    };
+
+    auto coord = latLngToCoord(latLng);
+    auto coordAtPoint = latLngToCoord(screenCoordinateToLatLng(anchor));
+    auto center = latLngToCoord(getLatLng());
+    setLatLngZoom(coordToLatLng(center + coord - coordAtPoint), getZoom());
 }
 
 void TransformState::setLatLngZoom(const LatLng &latLng, double zoom) {
